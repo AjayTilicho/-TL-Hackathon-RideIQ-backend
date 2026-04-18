@@ -15,15 +15,35 @@ function signToken(user) {
   return jwt.sign(payload, config.jwtSecret, { expiresIn: config.jwtExpiresIn });
 }
 
+function authCookieShape() {
+  const crossSite =
+    process.env.AUTH_COOKIE_CROSS_SITE === '1' || process.env.AUTH_COOKIE_CROSS_SITE === 'true';
+  const secure = crossSite || config.nodeEnv === 'production';
+  const sameSite = crossSite ? 'none' : 'lax';
+  return { secure, sameSite };
+}
+
+/** Match `buildAuthCookie` path / secure / sameSite or the browser will not clear the cookie. */
+export function authCookieClearOptions() {
+  const { secure, sameSite } = authCookieShape();
+  return {
+    httpOnly: true,
+    secure,
+    sameSite,
+    path: '/',
+  };
+}
+
 export function buildAuthCookie(token) {
   const maxAgeMs = 7 * 24 * 60 * 60 * 1000;
+  const { secure, sameSite } = authCookieShape();
   return {
     name: config.authCookieName,
     value: token,
     options: {
       httpOnly: true,
-      secure: config.nodeEnv === 'production',
-      sameSite: 'lax',
+      secure,
+      sameSite,
       path: '/',
       maxAge: maxAgeMs,
     },

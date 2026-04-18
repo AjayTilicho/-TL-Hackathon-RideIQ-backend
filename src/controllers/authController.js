@@ -9,12 +9,7 @@ function setAuthCookie(res, token) {
 }
 
 function clearAuthCookie(res) {
-  res.clearCookie(config.authCookieName, {
-    httpOnly: true,
-    secure: config.nodeEnv === 'production',
-    sameSite: 'lax',
-    path: '/',
-  });
+  res.clearCookie(config.authCookieName, authService.authCookieClearOptions());
 }
 
 export const register = asyncHandler(async (req, res) => {
