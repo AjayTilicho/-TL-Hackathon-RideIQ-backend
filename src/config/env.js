@@ -7,16 +7,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const backendRoot = path.resolve(__dirname, '..', '..');
 dotenv.config({ path: path.join(backendRoot, '.env') });
 
-const defaultCorsOrigins = ['http://127.0.0.1:5173', 'http://localhost:5173'];
-
-function parseCorsOrigins() {
-  const raw = (process.env.CORS_ORIGIN || '')
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean);
-  return [...new Set([...defaultCorsOrigins, ...raw])];
-}
-
 const jwtSecret = process.env.JWT_SECRET || '';
 if (!jwtSecret && (process.env.NODE_ENV || 'development') === 'production') {
   // eslint-disable-next-line no-console
@@ -35,5 +25,4 @@ export const config = {
   jwtSecret: jwtSecret || 'dev-insecure-change-me',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
   authCookieName: process.env.AUTH_COOKIE_NAME || 'rideiq_token',
-  corsOrigins: parseCorsOrigins(),
 };

@@ -4,25 +4,17 @@ import cookieParser from 'cookie-parser';
 import apiRoutes from './routes/index.js';
 import { requestLogger } from './middleware/requestLogger.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
-import { config } from './config/env.js';
 
 const app = express();
 
+/** Reflect any `Origin` (cannot use `*` with `credentials: true`). Allows all browser cross-origin API calls. */
 app.use(
   cors({
-    // origin(origin, callback) {
-    //   if (!origin) {
-    //     callback(null, true);
-    //     return;
-    //   }
-    //   if (config.corsOrigins.includes(origin)) {
-    //     callback(null, true);
-    //     return;
-    //   }
-    //   callback(null, false);
-    // },
     origin: true,
     credentials: true,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    optionsSuccessStatus: 204,
   }),
 );
 app.use(cookieParser());

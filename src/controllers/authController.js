@@ -20,13 +20,13 @@ function clearAuthCookie(res) {
 export const register = asyncHandler(async (req, res) => {
   const { user, token } = await authService.registerUser(req.body);
   setAuthCookie(res, token);
-  res.status(201).json({ success: true, data: { user } });
+  res.status(201).json({ success: true, data: { user, token } });
 });
 
 export const login = asyncHandler(async (req, res) => {
   const { user, token } = await authService.loginUser(req.body);
   setAuthCookie(res, token);
-  res.json({ success: true, data: { user } });
+  res.json({ success: true, data: { user, token } });
 });
 
 export const logout = asyncHandler(async (_req, res) => {
