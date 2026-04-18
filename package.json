@@ -1,0 +1,24 @@
+{
+  "name": "rideiq-backend",
+  "version": "1.0.0",
+  "description": "RideIQ REST API — bikes, documents, service history",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": ["rideiq", "express", "mongodb"],
+  "license": "MIT",
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "express-validator": "^7.2.0",
+    "mongoose": "^8.8.0"
+  }
+}
