@@ -10,17 +10,18 @@ const app = express();
 
 app.use(
   cors({
-    origin(origin, callback) {
-      if (!origin) {
-        callback(null, true);
-        return;
-      }
-      if (config.corsOrigins.includes(origin)) {
-        callback(null, true);
-        return;
-      }
-      callback(null, false);
-    },
+    // origin(origin, callback) {
+    //   if (!origin) {
+    //     callback(null, true);
+    //     return;
+    //   }
+    //   if (config.corsOrigins.includes(origin)) {
+    //     callback(null, true);
+    //     return;
+    //   }
+    //   callback(null, false);
+    // },
+    origin: true,
     credentials: true,
   }),
 );
