@@ -1,4 +1,5 @@
 import { AppError } from '../utils/AppError.js';
+import { ollamaHttpError } from '../utils/ollamaHttpError.js';
 
 const SYSTEM_PROMPT = `Motorcycle/bicycle expert. User photo may be motorbike, scooter, or cycle.
 
@@ -63,14 +64,13 @@ export async function analyzeBikeImage(cfg, imageBuffer) {
 
   if (!res.ok) {
     const errText = await res.text().catch(() => '');
-    const base = `Ollama request failed (${res.status}): ${errText || res.statusText}`;
     if (res.status === 404 && /not found/i.test(errText)) {
       throw new AppError(
-        `${base} Vision model "${cfg.ollamaVisionModel}" is not installed. Run: ollama pull ${cfg.ollamaVisionModel} — or set OLLAMA_VISION_MODEL to a vision tag from GET /api/ai/models (e.g. llava, llama3.2-vision, moondream).`,
+        `Ollama request failed (404): Vision model "${cfg.ollamaVisionModel}" is not installed. Run: ollama pull ${cfg.ollamaVisionModel} — or set OLLAMA_VISION_MODEL to a vision tag from GET /api/ai/models (e.g. llava, llama3.2-vision, moondream).`,
         502,
       );
     }
-    throw new AppError(`${base} Check OLLAMA_URL and that Ollama is running.`, 502);
+    throw ollamaHttpError(res.status, errText, cfg.ollamaVisionModel);
   }
 
   const data = await res.json();

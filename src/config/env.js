@@ -1,6 +1,27 @@
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-dotenv.config();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+/** Backend package root (this file is in src/config/). */
+const backendRoot = path.resolve(__dirname, '..', '..');
+dotenv.config({ path: path.join(backendRoot, '.env') });
+
+const defaultCorsOrigins = ['http://127.0.0.1:5173', 'http://localhost:5173'];
+
+function parseCorsOrigins() {
+  const raw = (process.env.CORS_ORIGIN || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return [...new Set([...defaultCorsOrigins, ...raw])];
+}
+
+const jwtSecret = process.env.JWT_SECRET || '';
+if (!jwtSecret && (process.env.NODE_ENV || 'development') === 'production') {
+  // eslint-disable-next-line no-console
+  console.warn('[config] JWT_SECRET is not set — set it before running in production.');
+}
 
 export const config = {
   port: Number(process.env.PORT) || 5001,
@@ -11,4 +32,8 @@ export const config = {
   ollamaUrl: (process.env.OLLAMA_URL || 'http://127.0.0.1:11434').replace(/\/$/, ''),
   ollamaVisionModel: process.env.OLLAMA_VISION_MODEL || 'llava',
   ollamaNumPredict: Math.min(8192, Math.max(200, Number(process.env.OLLAMA_NUM_PREDICT) || 900)),
+  jwtSecret: jwtSecret || 'dev-insecure-change-me',
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
+  authCookieName: process.env.AUTH_COOKIE_NAME || 'rideiq_token',
+  corsOrigins: parseCorsOrigins(),
 };

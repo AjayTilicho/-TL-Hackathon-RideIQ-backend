@@ -15,7 +15,6 @@ export const createBikeRules = [
   body('claimedMileageKmL').optional({ nullable: true }).isFloat({ min: 0 }).toFloat(),
   body('fuelSystem').optional().isString().trim(),
   body('image').optional().isString(),
-  body('userId').optional().isMongoId().withMessage('userId must be a valid ObjectId'),
 ];
 
 export const updateBikeRules = [
@@ -30,5 +29,4 @@ export const updateBikeRules = [
   body('claimedMileageKmL').optional({ nullable: true }).isFloat({ min: 0 }).toFloat(),
   body('fuelSystem').optional().isString().trim(),
   body('image').optional({ nullable: true }).isString(),
-  body('userId').optional({ nullable: true }).isMongoId().withMessage('userId must be a valid ObjectId'),
 ];

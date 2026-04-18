@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { Bike } from '../models/Bike.js';
 import { Document } from '../models/Document.js';
 import { ServiceHistory } from '../models/ServiceHistory.js';
@@ -12,30 +13,44 @@ function toPlain(doc) {
   return o;
 }
 
-export async function createBike(data) {
-  const bike = await Bike.create(data);
-  return toPlain(bike);
-}
-
 function leanBike(b) {
   if (!b) return null;
   const { _id, __v, ...rest } = b;
   return { ...rest, id: String(_id) };
 }
 
-export async function listBikes(filter = {}) {
-  const bikes = await Bike.find(filter).select('-image').sort({ createdAt: -1 }).lean();
+export async function assertBikeOwnedByUser(bikeId, userId) {
+  if (!mongoose.Types.ObjectId.isValid(bikeId)) {
+    throw new AppError('Bike not found', 404);
+  }
+  const bike = await Bike.findById(bikeId).select('userId').lean();
+  if (!bike) throw new AppError('Bike not found', 404);
+  if (!bike.userId || String(bike.userId) !== String(userId)) {
+    throw new AppError('Forbidden', 403);
+  }
+}
+
+export async function createBike(data, userId) {
+  const { userId: _ignored, ...rest } = data;
+  const bike = await Bike.create({ ...rest, userId });
+  return toPlain(bike);
+}
+
+export async function listBikes(userId) {
+  const bikes = await Bike.find({ userId }).sort({ createdAt: -1 }).lean();
   return bikes.map((b) => leanBike(b));
 }
 
-export async function getBikeById(id) {
-  const bike = await Bike.findById(id).lean();
+export async function getBikeById(id, userId) {
+  const bike = await Bike.findOne({ _id: id, userId }).lean();
   if (!bike) throw new AppError('Bike not found', 404);
   return leanBike(bike);
 }
 
-export async function updateBike(id, data) {
-  const bike = await Bike.findByIdAndUpdate(id, data, {
+export async function updateBike(id, data, userId) {
+  await assertBikeOwnedByUser(id, userId);
+  const { userId: _ignored, ...patch } = data;
+  const bike = await Bike.findByIdAndUpdate(id, patch, {
     new: true,
     runValidators: true,
   }).lean();
@@ -43,7 +58,8 @@ export async function updateBike(id, data) {
   return leanBike(bike);
 }
 
-export async function deleteBike(id) {
+export async function deleteBike(id, userId) {
+  await assertBikeOwnedByUser(id, userId);
   const bike = await Bike.findByIdAndDelete(id).lean();
   if (!bike) throw new AppError('Bike not found', 404);
   await Promise.all([

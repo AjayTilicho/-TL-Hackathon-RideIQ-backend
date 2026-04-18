@@ -24,6 +24,8 @@ router.get('/models', aiController.listOllamaModels);
 
 router.post('/document-extract', documentExtractRules, validate, aiController.extractDocument);
 
+router.post('/dashboard-tips', aiController.dashboardTips);
+
 router.post(
   '/analyze-bike-image',
   (req, res, next) => {
